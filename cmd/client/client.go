@@ -64,7 +64,7 @@ func main() {
 		var msg message
 		msg.Username = name
 		s.Scan()
-		fmt.Printf("\033[1A")
+		fmt.Printf("\033[A")
 		msg.Text = s.Text()
 		if msg.Text == "quit()" {
 			sock.WriteJSON(message{Username: name, Text: "has disconnected."})
