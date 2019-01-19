@@ -4,6 +4,7 @@ import (
 	"flag"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/fatih/color"
 	"github.com/google/uuid"
@@ -71,7 +72,7 @@ func handleConn(w http.ResponseWriter, r *http.Request) {
 func handleMsg() {
 	for {
 		msg := <-chatRoom // Get any messages that are sent to the chatRoom channel
-		color.Green("%s: %s\n", msg.Username, msg.Text)
+		color.Green("%s >> %s: %s\n", time.Now().Format(time.ANSIC), msg.Username, msg.Text)
 		for client, UUID := range activeClients {
 			if msg.ID != UUID {
 				err := client.WriteJSON(msg)

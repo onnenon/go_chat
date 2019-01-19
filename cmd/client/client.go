@@ -53,8 +53,8 @@ func main() {
 
 			err := sock.ReadJSON(&msg)
 			if err != nil {
-				log.Println("read:", err)
-				return
+				color.White("Exiting...")
+				log.Fatal()
 			}
 			color.Red("%s: %s\n", msg.Username, msg.Text)
 		}
@@ -69,6 +69,7 @@ func main() {
 		fmt.Printf("\033[1A")
 		msg.Text = s.Text()
 		if msg.Text == "quit()" {
+			sock.WriteJSON(message{Username: name, Text: "has disconnected."})
 			break
 		}
 		color.Cyan("%s: %s\n", msg.Username, msg.Text)
