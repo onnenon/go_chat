@@ -8,10 +8,9 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-// Struct to marshal our websocket messages to.
 type message struct {
-	Name    string `json:"name"`
-	Message string `json:"message"`
+	Username string `json:"username"`
+	Text     string `json:"text"`
 }
 
 var upgrader = websocket.Upgrader{}                // Upgrader instance to upgrade all http connections to a websocket.
@@ -21,18 +20,15 @@ var chatRoom = make(chan message)                  //Channel to send all message
 func main() {
 	//Provide the address and port of the server as a flag so it isn't hard-coded.
 	addr := flag.String("addr", ":8080", "Server's network address")
-
 	flag.Parse()
 
+	http.HandleFunc("/", handleConn)
+	log.Printf("Starting server on %s", *addr)
 	err := http.ListenAndServe(*addr, nil)
 
 	if err != nil {
 		log.Fatal("Error starting server, exiting.")
 	}
-
-	log.Printf("Starting server on %s", *addr)
-
-	http.HandleFunc("/", handleConn)
 }
 
 // handleConn handles incomming http connections by adding the connection to a
@@ -44,11 +40,14 @@ func handleConn(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Error upgrading connection to websocket: %v", err)
 	}
 
+	defer sock.Close()
+
 	activeClients[sock] = true
 
 	for {
 		var msg message
 
+		log.Printf("Message text: %v", msg.Text)
 		err := sock.ReadJSON(&msg)
 		if err != nil {
 			log.Printf("Error receiving message: %v", err)
@@ -58,8 +57,6 @@ func handleConn(w http.ResponseWriter, r *http.Request) {
 
 		chatRoom <- msg
 	}
-
-	sock.Close() // If we get here, we had a connection error, so close the socket
 }
 
 // handleMsg listens to the chatRoom channel, when a message is read it is sent
