@@ -2,29 +2,33 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"log"
 	"net/http"
 
+	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
 )
 
 type message struct {
 	Username string `json:"username"`
 	Text     string `json:"text"`
+	ID       uuid.UUID
 }
 
-var upgrader = websocket.Upgrader{}                // Upgrader instance to upgrade all http connections to a websocket.
-var activeClients = make(map[*websocket.Conn]bool) // Map to store currently active client connections.
-var chatRoom = make(chan message)                  //Channel to send all messages to.
+var upgrader = websocket.Upgrader{}                     // Upgrader instance to upgrade all http connections to a websocket.
+var activeClients = make(map[*websocket.Conn]uuid.UUID) // Map to store currently active client connections.
+var chatRoom = make(chan message)                       //Channel to send all messages to.
 
 func main() {
 	//Provide the address and port of the server as a flag so it isn't hard-coded.
 	addr := flag.String("addr", ":8080", "Server's network address")
 	flag.Parse()
 
+	http.HandleFunc("/", handleConn)
+
 	go handleMsg()
 
-	http.HandleFunc("/", handleConn)
 	log.Printf("Starting server on %s", *addr)
 	err := http.ListenAndServe(*addr, nil)
 
@@ -44,7 +48,7 @@ func handleConn(w http.ResponseWriter, r *http.Request) {
 
 	defer sock.Close()
 
-	activeClients[sock] = true
+	activeClients[sock] = uuid.New()
 
 	for {
 		var msg message
@@ -55,6 +59,8 @@ func handleConn(w http.ResponseWriter, r *http.Request) {
 			delete(activeClients, sock)
 			break
 		}
+
+		msg.ID = activeClients[sock]
 		chatRoom <- msg
 	}
 }
@@ -65,12 +71,15 @@ func handleConn(w http.ResponseWriter, r *http.Request) {
 func handleMsg() {
 	for {
 		msg := <-chatRoom // Get any messages that are sent to the chatRoom channel
-		for client := range activeClients {
-			err := client.WriteJSON(msg)
-			if err != nil {
-				log.Printf("Error sending message to client: %v", err)
-				client.Close()
-				delete(activeClients, client)
+		fmt.Printf("%s: %s\n", msg.Username, msg.Text)
+		for client, UUID := range activeClients {
+			if msg.ID != UUID {
+				err := client.WriteJSON(msg)
+				if err != nil {
+					log.Printf("Error sending message to client: %v", err)
+					client.Close()
+					delete(activeClients, client)
+				}
 			}
 		}
 	}

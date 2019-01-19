@@ -8,6 +8,7 @@ import (
 	"net/url"
 	"os"
 
+	"github.com/fatih/color"
 	"github.com/gorilla/websocket"
 )
 
@@ -41,20 +42,34 @@ func main() {
 		log.Fatal("Connection error, exiting:", err)
 	}
 
-	msg := message{Username: name, Text: "Hello!"}
+	msg := message{Username: name, Text: "has joined the chat."}
 	sock.WriteJSON(msg)
 
 	defer sock.Close()
 
-	for {
-		go handleMessage(sock)
-	}
+	go func() {
+		for {
+			var msg message
 
-}
-func handleMessage(sock *websocket.Conn) {
+			err := sock.ReadJSON(&msg)
+			if err != nil {
+				log.Println("read:", err)
+				return
+			}
+			color.Red("%s: %s\n", msg.Username, msg.Text)
+		}
+	}()
+
 	for {
 		var msg message
-		sock.ReadJSON(&msg)
-		fmt.Printf("%s: %s\n", msg.Username, msg.Text)
+		msg.Username = name
+		s.Scan()
+		msg.Text = s.Text()
+		err := sock.WriteJSON(msg)
+		if err != nil {
+			log.Fatal("Error sending message, exiting")
+		}
+		color.Cyan("%s: %s\n", msg.Username, msg.Text)
 	}
+
 }
