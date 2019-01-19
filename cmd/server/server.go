@@ -22,12 +22,14 @@ func main() {
 	addr := flag.String("addr", ":8080", "Server's network address")
 	flag.Parse()
 
+	go handleMsg()
+
 	http.HandleFunc("/", handleConn)
 	log.Printf("Starting server on %s", *addr)
 	err := http.ListenAndServe(*addr, nil)
 
 	if err != nil {
-		log.Fatal("Error starting server, exiting.")
+		log.Fatal("Error starting server, exiting.", err)
 	}
 }
 
@@ -47,14 +49,12 @@ func handleConn(w http.ResponseWriter, r *http.Request) {
 	for {
 		var msg message
 
-		log.Printf("Message text: %v", msg.Text)
 		err := sock.ReadJSON(&msg)
 		if err != nil {
 			log.Printf("Error receiving message: %v", err)
 			delete(activeClients, sock)
 			break
 		}
-
 		chatRoom <- msg
 	}
 }
@@ -64,11 +64,11 @@ func handleConn(w http.ResponseWriter, r *http.Request) {
 // to an activeClient, the client is removed from the activeClient map.
 func handleMsg() {
 	for {
-		msg := chatRoom // Get any messages that are sent to the chatRoom channel
+		msg := <-chatRoom // Get any messages that are sent to the chatRoom channel
 		for client := range activeClients {
 			err := client.WriteJSON(msg)
 			if err != nil {
-				log.Printf("Error sending message to client %v: %v", client, err)
+				log.Printf("Error sending message to client: %v", err)
 				client.Close()
 				delete(activeClients, client)
 			}

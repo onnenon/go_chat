@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"encoding/json"
 	"flag"
 	"fmt"
 	"log"
@@ -26,29 +25,36 @@ func main() {
 	server := flag.String("server", "localhost:8080", "Server network address")
 
 	flag.Parse()
-
-	reader := bufio.NewReader(os.Stdin)
-	fmt.Print("Enter your Name: ")
-	name, _ := reader.ReadString('\n')
-
-	fmt.Printf("\nWelcome %s\n", name)
-
-	fmt.Print("Lets connect to your server.\n\n")
-
 	u := url.URL{Scheme: "ws", Host: *server, Path: "/"}
 
+	s := bufio.NewScanner(os.Stdin)
+	fmt.Print("Enter your Name: ")
+	s.Scan()
+	name := s.Text()
+
+	fmt.Printf("\nWelcome %s\n", name)
+	fmt.Print("Lets connect to your server.\n\n")
 	log.Printf("Connecting to server @ %s", u.String())
 
-	conn, _, err := websocket.DefaultDialer.Dial(u.String(), nil)
+	sock, _, err := websocket.DefaultDialer.Dial(u.String(), nil)
 	if err != nil {
 		log.Fatal("Connection error, exiting:", err)
 	}
-	msg := message{Username: name, Text: "Hello!"}
 
-	json := json.Marshal(msg)
+	msg := message{Username: name, Text: "Hello!"}
+	sock.WriteJSON(msg)
+
+	defer sock.Close()
+
 	for {
-		conn.WriteJSON(json)
+		go handleMessage(sock)
 	}
 
-	// conn.Close()
+}
+func handleMessage(sock *websocket.Conn) {
+	for {
+		var msg message
+		sock.ReadJSON(&msg)
+		fmt.Printf("%s: %s\n", msg.Username, msg.Text)
+	}
 }
