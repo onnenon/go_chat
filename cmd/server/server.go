@@ -2,10 +2,10 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"log"
 	"net/http"
 
+	"github.com/fatih/color"
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
 )
@@ -55,7 +55,7 @@ func handleConn(w http.ResponseWriter, r *http.Request) {
 
 		err := sock.ReadJSON(&msg)
 		if err != nil {
-			log.Printf("Error receiving message: %v", err)
+			log.Printf("Closing connection with ID: %v", activeClients[sock])
 			delete(activeClients, sock)
 			break
 		}
@@ -71,7 +71,7 @@ func handleConn(w http.ResponseWriter, r *http.Request) {
 func handleMsg() {
 	for {
 		msg := <-chatRoom // Get any messages that are sent to the chatRoom channel
-		fmt.Printf("%s: %s\n", msg.Username, msg.Text)
+		color.Green("%s: %s\n", msg.Username, msg.Text)
 		for client, UUID := range activeClients {
 			if msg.ID != UUID {
 				err := client.WriteJSON(msg)

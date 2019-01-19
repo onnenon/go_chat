@@ -29,13 +29,13 @@ func main() {
 	u := url.URL{Scheme: "ws", Host: *server, Path: "/"}
 
 	s := bufio.NewScanner(os.Stdin)
-	fmt.Print("Enter your Name: ")
+	color.Yellow("Enter your Name: ")
 	s.Scan()
 	name := s.Text()
 
-	fmt.Printf("\nWelcome %s\n", name)
-	fmt.Print("Lets connect to your server.\n\n")
-	log.Printf("Connecting to server @ %s", u.String())
+	color.Green("\nWelcome %s!!\n\n", name)
+	color.Green("Connecting to server @ %s\n", *server)
+	color.Yellow("Go ahead and send a message, or type quit() to exit.\n")
 
 	sock, _, err := websocket.DefaultDialer.Dial(u.String(), nil)
 	if err != nil {
@@ -60,16 +60,21 @@ func main() {
 		}
 	}()
 
+	defer sock.Close()
+
 	for {
 		var msg message
 		msg.Username = name
 		s.Scan()
+		fmt.Printf("\033[1A")
 		msg.Text = s.Text()
+		if msg.Text == "quit()" {
+			break
+		}
+		color.Cyan("%s: %s\n", msg.Username, msg.Text)
 		err := sock.WriteJSON(msg)
 		if err != nil {
 			log.Fatal("Error sending message, exiting")
 		}
-		color.Cyan("%s: %s\n", msg.Username, msg.Text)
 	}
-
 }
