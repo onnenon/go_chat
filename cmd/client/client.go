@@ -22,7 +22,7 @@ var name string
 // Main starts an instance of the chat client and connects to the server passed
 // in with the --server flag, or 127.0.0.1:8080 by default.
 func main() {
-	//Provide the address and port of the server as a flag so it isn't hard-coded.
+	//Provide the address and port of the server as flag so it isn't hard-coded.
 	server := flag.String("server", "localhost:8080", "Server network address")
 
 	flag.Parse()

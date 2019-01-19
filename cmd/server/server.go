@@ -26,7 +26,7 @@ func main() {
 	addr := flag.String("addr", ":8080", "Server's network address")
 	flag.Parse()
 
-	http.HandleFunc("/", handleConn) // Since we only need one endpoint, make it root.
+	http.HandleFunc("/", handleConn) // We only need one uri, make it root.
 
 	go handleMsg() // Create thread to handle messages
 
@@ -50,7 +50,8 @@ func handleConn(w http.ResponseWriter, r *http.Request) {
 
 	defer sock.Close()
 
-	activeClients[sock] = uuid.New() // Generate a UUID for the client and add it to activeClients
+	// Generate a UUID for the client and add it to activeClients
+	activeClients[sock] = uuid.New()
 
 	for {
 		var msg message
@@ -73,7 +74,10 @@ func handleConn(w http.ResponseWriter, r *http.Request) {
 func handleMsg() {
 	for {
 		msg := <-chatRoom // Get any messages that are sent to the chatRoom channel
+
+		// Log to the servers' Stdout
 		color.Green("%s >> %s: %s\n", time.Now().Format(time.ANSIC), msg.Username, msg.Text)
+
 		for client, UUID := range activeClients {
 			if msg.ID != UUID { // Check the UUID to prevent sending messages to their origin.
 				err := client.WriteJSON(msg)
