@@ -45,22 +45,20 @@ func main() {
 	msg := message{Username: name, Text: "has joined the chat."}
 	sock.WriteJSON(msg)
 
-	defer sock.Close()
-
-	go func() {
+	go func() { // Create a thread to handle incomming messages
 		for {
 			var msg message
 
 			err := sock.ReadJSON(&msg)
 			if err != nil {
 				color.White("Exiting...")
-				log.Fatal()
+				os.Exit(0)
 			}
 			color.Red("%s: %s\n", msg.Username, msg.Text)
 		}
 	}()
 
-	defer sock.Close()
+	defer sock.Close() // Close the socket if we disconnect
 
 	for {
 		var msg message

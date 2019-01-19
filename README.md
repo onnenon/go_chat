@@ -4,7 +4,7 @@ In order to compile the client and server go 1.11 or higher is needed.
 ## Setting up the Server
 The server can be compiled with the command `go build -o <name> cmd/server/*` where `<name>` is the desired name of the compiled binary.
 
-After compilation the compiled binary is ran like any other executable.
+After compilation, the compiled binary is ran like any other executable.
 
 You can also run the server without compilation with the `go run cmd/server/*`, making sure to have the correct relative path to the `server/*` directory.
 
