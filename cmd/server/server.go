@@ -1,3 +1,12 @@
+/*
+A simple websocket server.
+
+Creates a persistent webserver using the http library. Listens for incomming
+http connections on the port provided with the -addr flag, or 9000 by default.
+
+Author: Stephen Onnen
+COMS 319 HW01
+*/
 package main
 
 import (

@@ -1,3 +1,12 @@
+/*
+A simple websocket client.
+
+Initializes a websocket connection with the server provided with the -server
+flag, or localhost:9000 by default.
+
+Author: Stephen Onnen
+COMS 319 HW01
+*/
 package main
 
 import (
@@ -51,10 +60,10 @@ func main() {
 	msg := message{Username: name, Text: "has joined the chat."}
 	sock.WriteJSON(msg)
 
-	go handleIncoming(sock) // Start "handleIncoming" thread
-	go handleOutgoing(sock) // Start "handleOutgoing" thread
+	go handleIncoming(sock) // Handle incoming messages concurrently
+	go handleOutgoing(sock) // Handle outgoing messages concurrently
 
-	wg.Wait()
+	wg.Wait() // Wait for handling of incoming/outgoing messages to complete
 }
 
 // handleIncoming handles incoming messages on the websocket connection.
