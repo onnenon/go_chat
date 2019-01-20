@@ -11,19 +11,25 @@ import (
 	"github.com/gorilla/websocket" // Reccomended by Golang over it's STD Library
 )
 
+// Struct that all incoming messages will be unmarshalled into
 type message struct {
 	Username string `json:"username"`
 	Text     string `json:"text"`
 	ID       uuid.UUID
 }
 
-var upgrader = websocket.Upgrader{}                     // Upgrader instance to upgrade all http connections to a websocket.
-var activeClients = make(map[*websocket.Conn]uuid.UUID) // Map to store currently active client connections.
-var chatRoom = make(chan message)                       //Channel to send all messages to.
+// Upgrader instance to upgrade all http connections to a websocket.
+var upgrader = websocket.Upgrader{}
+
+// Map to store currently active client connections.
+var activeClients = make(map[*websocket.Conn]uuid.UUID)
+
+//Channel to send all messages to.
+var chatRoom = make(chan message)
 
 func main() {
 	//Provide the port of the server as a flag so it isn't hard-coded.
-	addr := flag.String("addr", ":8080", "Server's network address")
+	addr := flag.String("addr", ":9000", "Server's network address")
 	flag.Parse()
 
 	http.HandleFunc("/", handleConn) // We only need one uri, make it root.
@@ -79,7 +85,8 @@ func handleMsg() {
 		color.Green("%s >> %s: %s\n", time.Now().Format(time.ANSIC), msg.Username, msg.Text)
 
 		for client, UUID := range activeClients {
-			if msg.ID != UUID { // Check the UUID to prevent sending messages to their origin.
+			// Check the UUID to prevent sending messages to their origin.
+			if msg.ID != UUID {
 				err := client.WriteJSON(msg)
 				if err != nil {
 					log.Printf("Error sending message to client: %v", err)
