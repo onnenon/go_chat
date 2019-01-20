@@ -48,6 +48,7 @@ func main() {
 // global map of current connections and upgrading the connection to a websocket.
 // Connections are identified individually by a UUID
 func handleConn(w http.ResponseWriter, r *http.Request) {
+	// Upgrade incomming http connections to websocket connections
 	sock, err := upgrader.Upgrade(w, r, nil)
 
 	if err != nil {
@@ -81,8 +82,9 @@ func handleMsg() {
 	for {
 		msg := <-chatRoom // Get any messages that are sent to the chatRoom channel
 
-		// Log to the servers' Stdout
-		color.Green("%s >> %s: %s\n", time.Now().Format(time.ANSIC), msg.Username, msg.Text)
+		// Log each message to the server's Stdout
+		t := time.Now().Format(time.ANSIC)
+		color.Green("%s >> %s: %s\n", t, msg.Username, msg.Text)
 
 		for client, UUID := range activeClients {
 			// Check the UUID to prevent sending messages to their origin.

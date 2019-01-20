@@ -25,6 +25,7 @@ var wg sync.WaitGroup // Waitgroup to force our goroutines to finish
 // Main starts an instance of the chat client and connects to the server passed
 // in with the --server flag, or 127.0.0.1:8080 by default.
 func main() {
+	// Create a waitgroup so main doesn't exit prior to threads finishing
 	wg.Add(2)
 	//Provide the address and port of the server as flag so it isn't hard-coded.
 	server := flag.String("server", "localhost:9000", "Server network address")
