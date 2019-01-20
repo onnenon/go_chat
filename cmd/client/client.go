@@ -1,11 +1,12 @@
 /*
-A simple websocket client.
+COMS 319 HW01 Client
+A simple websocket client written in Go.
 
 Initializes a websocket connection with the server provided with the -server
 flag, or localhost:9000 by default.
 
-Author: Stephen Onnen
-COMS 319 HW01
+Author: 	Stephen Onnen
+Email: 		onnen@iastate.edu
 */
 package main
 
@@ -100,6 +101,7 @@ func handleOutgoing(sock *websocket.Conn) {
 		if msg.Text == "quit()" {
 			fmt.Println("Goodbye!")
 			sock.WriteJSON(message{Username: name, Text: "has disconnected."})
+			sock.Close()
 			os.Exit(0)
 		}
 		color.Cyan("%s: %s\n", msg.Username, msg.Text)

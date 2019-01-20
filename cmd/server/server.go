@@ -1,11 +1,12 @@
 /*
-A simple websocket server.
+COM S 319 HW01 Server
+A simple websocket server written in Go.
 
 Creates a persistent webserver using the http library. Listens for incomming
 http connections on the port provided with the -addr flag, or 9000 by default.
 
-Author: Stephen Onnen
-COMS 319 HW01
+Author:		Stephen Onnen
+Email: 		onnen@iastate.edu
 */
 package main
 
@@ -43,11 +44,11 @@ func main() {
 
 	http.HandleFunc("/", handleConn) // We only need one uri, make it root.
 
-	go handleMsg() // Create thread to handle messages
+	go handleMsg() // Handle incoming messages concurrently.
 
 	log.Printf("Starting server on %s", *addr)
-	err := http.ListenAndServe(*addr, nil)
 
+	err := http.ListenAndServe(*addr, nil)
 	if err != nil {
 		log.Fatal("Error starting server, exiting.", err)
 	}
