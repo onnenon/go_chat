@@ -93,6 +93,7 @@ func handleMsg() {
 
 		// Log each message to the server's Stdout
 		t := time.Now().Format(time.ANSIC)
+
 		color.Green("%s >> %s: %s\n", t, msg.Username, msg.Text)
 
 		for client, UUID := range activeClients {
