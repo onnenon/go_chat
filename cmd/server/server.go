@@ -42,13 +42,15 @@ func main() {
 	addr := flag.String("addr", ":9000", "Server's network address")
 	flag.Parse()
 
-	http.HandleFunc("/", handleConn) // We only need one uri, make it root.
+	mux := http.NewServeMux()
+
+	mux.HandleFunc("/", handleConn) // We only need one uri, make it root.
 
 	go handleMsg() // Handle incoming messages concurrently.
 
 	log.Printf("Starting server on %s", *addr)
 
-	err := http.ListenAndServe(*addr, nil)
+	err := http.ListenAndServe(*addr, mux)
 	if err != nil {
 		log.Fatal("Error starting server, exiting.", err)
 	}
