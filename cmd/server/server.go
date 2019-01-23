@@ -31,7 +31,7 @@ type message struct {
 // Upgrader instance to upgrade all http connections to a websocket.
 var upgrader = websocket.Upgrader{}
 
-// Map to store currently active client connections.
+// Map to store currently active client connections with an assigned UUID.
 var activeClients = make(map[*websocket.Conn]uuid.UUID)
 
 //Channel to send all messages to.
@@ -96,7 +96,6 @@ func handleMsg() {
 
 		// Log each message to the server's Stdout
 		t := time.Now().Format(time.ANSIC)
-
 		color.Green("%s >> %s: %s\n", t, msg.Username, msg.Text)
 
 		for client, UUID := range activeClients {
