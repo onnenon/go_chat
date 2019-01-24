@@ -18,7 +18,7 @@ import (
 
 	"github.com/fatih/color"
 	"github.com/google/uuid"
-	"github.com/gorilla/websocket" // Reccomended by Golang over it's STD Library
+	"github.com/gorilla/websocket" // Reccomended by Golang over STD Library
 )
 
 // Struct that all incoming messages will be unmarshalled into
@@ -57,8 +57,8 @@ func main() {
 }
 
 // handleConn handles incomming http connections by adding the connection to a
-// global map of current connections and upgrading the connection to a websocket.
-// Connections are identified individually by a UUID
+// global map of current connections and upgrading connection to a websocket.
+// Connections are identified individually by a generated UUID.
 func handleConn(w http.ResponseWriter, r *http.Request) {
 	// Upgrade incomming http connections to websocket connections
 	sock, err := upgrader.Upgrade(w, r, nil)
@@ -92,7 +92,7 @@ func handleConn(w http.ResponseWriter, r *http.Request) {
 // to an activeClient, the client is removed from the activeClient map.
 func handleMsg() {
 	for {
-		msg := <-chatRoom // Get any messages that are sent to the chatRoom channel
+		msg := <-chatRoom // Get messages that are sent to the chatRoom channel
 
 		// Log each message to the server's Stdout
 		t := time.Now().Format(time.ANSIC)
