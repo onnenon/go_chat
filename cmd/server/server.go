@@ -21,7 +21,7 @@ import (
 	"github.com/gorilla/websocket" // Reccomended by Golang over STD Library
 )
 
-// Struct that all incoming messages will be unmarshalled into
+// Struct that all incoming messages will be unmarshalled into.
 type message struct {
 	Username string `json:"username"`
 	Text     string `json:"text"`
