@@ -97,9 +97,11 @@ func handleOutgoing(sock *websocket.Conn) {
 	for {
 		var msg message
 		msg.Username = name
+
 		s.Scan()
 		fmt.Printf("\033[A")
 		msg.Text = s.Text()
+
 		if msg.Text == "quit()" {
 			fmt.Println("Goodbye!")
 			sock.WriteJSON(message{Username: name, Text: "has disconnected."})
@@ -107,6 +109,7 @@ func handleOutgoing(sock *websocket.Conn) {
 			os.Exit(0)
 		}
 		color.Cyan("%s: %s\n", msg.Username, msg.Text)
+
 		err := sock.WriteJSON(msg)
 		if err != nil {
 			log.Fatal("Error sending message, exiting")
