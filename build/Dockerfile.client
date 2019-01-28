@@ -18,6 +18,6 @@ WORKDIR /root/
 
 COPY --from=builder /opt/ .
 
-CMD [ "./client" ]
+CMD [ "./client", "-server=319-server"]
 
 EXPOSE 9000 
