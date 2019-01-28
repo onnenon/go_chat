@@ -29,10 +29,12 @@ hosted on Dockerhub. By using docker it is not necessary to install go or compil
 
 ### Server
 Run the following command to run an interactive version of the server:
+
 `docker run -it --name 319-server koozie/319-hw01-server:latest`
 
 ### Client
 Run the following command once per instance of the client:
+
 `docker run -it --link=319-server:server koozie/319-hw01-client:latest`
 
 ## Limitations
