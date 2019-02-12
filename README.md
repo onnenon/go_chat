@@ -1,8 +1,8 @@
-# COM S 319 Homework 01
+# Go chat
 
 [![Maintainability](https://api.codeclimate.com/v1/badges/420a59d184b1381dcd85/maintainability)](https://codeclimate.com/github/onnenon/go_chat/maintainability)
 
-A basic client/server cli chat app written in go for ISU Com S 319
+A basic client/server cli chat app written in go.
 
 In order to compile the client and server go 1.11 or higher is needed.
 
