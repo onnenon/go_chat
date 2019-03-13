@@ -35,13 +35,13 @@ hosted on Dockerhub. By using docker it is not necessary to install go or compil
 
 Run the following command to run an interactive version of the server:
 
-`docker run -it --name 319-server koozie/319-hw01-server:latest`
+`docker run -it --name go-chat-server koozie/go-chat:server`
 
 ### Client
 
 Run the following command once per instance of the client:
 
-`docker run -it --link=319-server:server koozie/319-hw01-client:latest`
+`docker run -it --link=go-chat-server:server koozie/go-chat:client`
 
 ## Limitations
 
