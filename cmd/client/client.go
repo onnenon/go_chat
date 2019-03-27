@@ -41,12 +41,10 @@ func main() {
 	//Provide the address and port of the server as flag so it isn't hard-coded.
 	server := flag.String("server", "localhost:9000", "Server network address")
 	path := flag.String("path", "/", "Server Path")
-
 	flag.Parse()
 	u := url.URL{Scheme: "ws", Host: *server, Path: *path}
 
 	color.Yellow("Enter your Name: ")
-
 	s = bufio.NewScanner(os.Stdin)
 	s.Scan()
 	name = s.Text()

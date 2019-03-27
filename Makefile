@@ -1,12 +1,12 @@
 build-server:
-	docker build -f build/Dockerfile.server --rm --no-cache -t 319-server:latest .
+	docker build -f build/server/Dockerfile --rm --no-cache -t koozie/go-chat:server .
 
 build-client:
-	docker build -f build/Dockerfile.client --rm --no-cache -t 319-client:latest .
+	docker build -f build/client/Dockerfile --rm --no-cache -t koozie/go-chat:client .
 
 run-server:
-	docker run -p 9000:9000 --name=go-server 319-server:latest
+	docker run -p 9000:9000 --name=go-server koozie/go-chat:server
 
 docker-clean:
-	docker rm -f 319-server || true
-	docker rm -f 319-client || true
+	docker rm -f koozie/go-chat:server || true
+	docker rm -f koozie/go-chat:client || true
