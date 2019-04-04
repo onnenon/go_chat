@@ -1,5 +1,5 @@
 /*
-COMS 319 HW01 Client
+Go_chat Client
 A simple websocket client written in Go.
 
 Initializes a websocket connection with the server provided with the -server
@@ -75,7 +75,6 @@ func handleIncoming(sock *websocket.Conn) {
 	defer wg.Done()
 	for {
 		var msg message
-
 		err := sock.ReadJSON(&msg)
 		if err != nil {
 			color.White("Server closed. Exiting...")

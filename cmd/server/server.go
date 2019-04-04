@@ -1,5 +1,5 @@
 /*
-COM S 319 HW01 Server
+Go_chat Server
 A simple websocket server written in Go.
 
 Creates a persistent webserver using the http library. Listens for incomming
@@ -43,13 +43,11 @@ func main() {
 	flag.Parse()
 
 	mux := http.NewServeMux()
-
 	mux.HandleFunc("/", handleConn) // We only need one uri, make it root.
 
 	go handleMsg() // Handle incoming messages concurrently.
 
 	log.Printf("Starting server on %s", *addr)
-
 	err := http.ListenAndServe(*addr, mux)
 	if err != nil {
 		log.Fatal("Error starting server, exiting.", err)
@@ -62,26 +60,22 @@ func main() {
 func handleConn(w http.ResponseWriter, r *http.Request) {
 	// Upgrade incomming http connections to websocket connections
 	sock, err := upgrader.Upgrade(w, r, nil)
-
 	if err != nil {
 		log.Printf("Error upgrading connection to websocket: %v", err)
 	}
 
 	defer sock.Close()
-
 	// Generate a UUID for the client and add it to activeClients
 	activeClients[sock] = uuid.New()
 
 	for {
 		var msg message
-
 		err := sock.ReadJSON(&msg)
 		if err != nil {
 			log.Printf("Closing connection with ID: %v", activeClients[sock])
 			delete(activeClients, sock)
 			break
 		}
-
 		msg.ID = activeClients[sock]
 		chatRoom <- msg
 	}
