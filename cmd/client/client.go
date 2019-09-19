@@ -1,13 +1,11 @@
-/*
-Go_chat Client
-A simple websocket client written in Go.
-
-Initializes a websocket connection with the server provided with the -server
-flag, or localhost:9000 by default.
-
-Author: 	Stephen Onnen
-Email: 		onnen@iastate.edu
-*/
+// Go_chat Client
+// A simple websocket client written in Go.
+//
+// Initializes a websocket connection with the server provided with the -server
+// flag, or localhost:9000 by default.
+//
+// Author: 		Stephen Onnen
+// Email: 		stephen.onnen@gmail.com
 package main
 
 import (

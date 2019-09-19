@@ -1,13 +1,11 @@
-/*
-Go_chat Server
-A simple websocket server written in Go.
-
-Creates a persistent webserver using the http library. Listens for incomming
-http connections on the port provided with the -addr flag, or 9000 by default.
-
-Author:		Stephen Onnen
-Email: 		onnen@iastate.edu
-*/
+// Go_chat Server
+// A simple websocket server written in Go.
+//
+// Creates a persistent webserver using the http library. Listens for incomming
+// http connections on the port provided with the -addr flag, or 9000 by default.
+//
+// Author:		Stephen Onnen
+// Email: 		stephen.onnen@gmail.com
 package main
 
 import (
@@ -18,7 +16,7 @@ import (
 
 	"github.com/fatih/color"
 	"github.com/google/uuid"
-	"github.com/gorilla/websocket" // Reccomended by Golang over STD Library
+	"github.com/gorilla/websocket"
 )
 
 // Struct that all incoming messages will be unmarshalled into.
