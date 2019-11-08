@@ -24,6 +24,8 @@ jobs:
             dep ensure
         fi
 
-    - name: Build
+    - name: Build Client
       run: go build -v ./cmd/client
+
+    - name: Build Server 
       run: go build -v ./cmd/server
