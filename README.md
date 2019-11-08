@@ -2,7 +2,7 @@
 
 [![Maintainability](https://api.codeclimate.com/v1/badges/420a59d184b1381dcd85/maintainability)](https://codeclimate.com/github/onnenon/go_chat/maintainability)
 
-![](https://github.com/onnenon/go_chat/workflows/go/badge.svg?branch=master)
+![](https://github.com/onnenon/go_chat/workflows/Build/badge.svg?branch=master)
 
 A basic client/server cli chat app written in go.
 
