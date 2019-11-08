@@ -15,26 +15,35 @@ import (
 	"log"
 	"net/url"
 	"os"
-	"sync"
 
 	"github.com/fatih/color"
 	"github.com/gorilla/websocket"
 )
+
+type ConnReader interface {
+	ReadJSON(v interface{}) error
+}
+
+type ConnWriter interface {
+	WriteJSON(v interface{}) error
+	Close() error
+}
+
+type Scanner interface {
+	Scan() bool
+	Text() string
+}
 
 type message struct {
 	Username string `json:"username"`
 	Text     string `json:"text"`
 }
 
-var name string       // Name given by user
-var s *bufio.Scanner  // Scanner used to read user input
-var wg sync.WaitGroup // Waitgroup to force our goroutines to finish
-
 // Main starts an instance of the chat client and connects to the server passed
 // in with the --server flag, or 127.0.0.1:8080 by default.
 func main() {
-	// Create waitgroup so main doesn't exit prior to threads finishing.
-	wg.Add(2)
+	var name string      // Name given by user
+	var s *bufio.Scanner // Scanner used to read user input
 
 	//Provide the address and port of the server as flag so it isn't hard-coded.
 	server := flag.String("server", "localhost:9000", "Server network address")
@@ -60,17 +69,14 @@ func main() {
 	msg := message{Username: name, Text: "has joined the chat."}
 	sock.WriteJSON(msg)
 
-	go handleIncoming(sock) // Handle incoming messages concurrently.
-	go handleOutgoing(sock) // Handle outgoing messages concurrently.
-
-	wg.Wait() // Wait for handling of incoming/outgoing messages to complete
+	go handleIncoming(sock)       // Handle incoming messages concurrently.
+	handleOutgoing(sock, s, name) // Handle outgoing messages concurrently.
 }
 
 // handleIncoming handles incoming messages on the websocket connection.
 // Each message is unmarshalled into a message struct and then printed to the
 // console.
-func handleIncoming(sock *websocket.Conn) {
-	defer wg.Done()
+func handleIncoming(sock ConnReader) {
 	for {
 		var msg message
 		err := sock.ReadJSON(&msg)
@@ -88,27 +94,27 @@ func handleIncoming(sock *websocket.Conn) {
 // With terminals that do not support escape sequences, the user inputed text
 // will not be properly cleared from the screen, and will display twice.
 // this should only affect users of Windows.
-func handleOutgoing(sock *websocket.Conn) {
-	defer wg.Done()
+func handleOutgoing(sock ConnWriter, s Scanner, name string) {
+	var msg message
+	msg.Username = name
+
 	for {
-		var msg message
-		msg.Username = name
+		if s.Scan() {
+			fmt.Printf("\033[A")
+			msg.Text = s.Text()
 
-		s.Scan()
-		fmt.Printf("\033[A")
-		msg.Text = s.Text()
+			if msg.Text == "quit()" {
+				fmt.Println("Goodbye!")
+				sock.WriteJSON(message{Username: name, Text: "has disconnected."})
+				sock.Close()
+				os.Exit(0)
+			}
+			color.Cyan("%s: %s\n", msg.Username, msg.Text)
 
-		if msg.Text == "quit()" {
-			fmt.Println("Goodbye!")
-			sock.WriteJSON(message{Username: name, Text: "has disconnected."})
-			sock.Close()
-			os.Exit(0)
-		}
-		color.Cyan("%s: %s\n", msg.Username, msg.Text)
-
-		err := sock.WriteJSON(msg)
-		if err != nil {
-			log.Fatal("Error sending message, exiting")
+			err := sock.WriteJSON(msg)
+			if err != nil {
+				log.Fatal("Error sending message, exiting")
+			}
 		}
 	}
 }
