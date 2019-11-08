@@ -1,4 +1,4 @@
-module github.com/onnenon/coms309_hw01
+module github.com/onnenon/go_chat
 
 require (
 	github.com/cjbassi/gotop v0.0.0-20190323004851-a31e182925a8 // indirect
@@ -12,3 +12,5 @@ require (
 	github.com/stretchr/testify v1.2.2
 	golang.org/x/crypto v0.0.0-20190103213133-ff983b9c42bc // indirect
 )
+
+go 1.13
