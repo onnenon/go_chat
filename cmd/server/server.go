@@ -26,26 +26,66 @@ type message struct {
 	ID       uuid.UUID
 }
 
-// Upgrader instance to upgrade all http connections to a websocket.
-var upgrader = websocket.Upgrader{}
+type ConnReadWriter interface {
+	WriteJSON(v interface{}) error
+	ReadJSON(v interface{}) error
+	Close() error
+}
 
-// Map to store currently active client connections with an assigned UUID.
-var activeClients = make(map[*websocket.Conn]uuid.UUID)
+type Upgrader interface {
+	Upgrade(w http.ResponseWriter, r *http.Request, Header http.Header) (*websocket.Conn, error)
+}
 
-//Channel to send all messages to.
-var chatRoom = make(chan message)
+type ChatServer struct {
+	upgrader      Upgrader
+	activeClients map[ConnReadWriter]uuid.UUID
+	chatRoom      chan message
+}
+
+func (cs *ChatServer) handleConn(w http.ResponseWriter, r *http.Request) {
+
+	sock, err := cs.upgrader.Upgrade(w, r, nil)
+	if err != nil {
+		log.Printf("Error upgrading connection to websocket: %v", err)
+	}
+
+	defer sock.Close()
+	// Generate a UUID for the client and add it to activeClients
+	cs.activeClients[sock] = uuid.New()
+
+	for {
+		var msg message
+		err := sock.ReadJSON(&msg)
+		if err != nil {
+			log.Printf("Closing connection with ID: %v", cs.activeClients[sock])
+			delete(cs.activeClients, sock)
+			break
+		}
+		msg.ID = cs.activeClients[sock]
+		cs.chatRoom <- msg
+	}
+}
 
 func main() {
+	// Upgrader instance to upgrade all http connections to a websocket.
+	// var upgrader = websocket.Upgrader{}
+
+	var chatServer ChatServer
+
+	chatServer.upgrader = websocket.Upgrader{}
+	chatServer.activeClients = make(map[ConnReadWriter]uuid.UUID)
+	chatServer.chatRoom = make(chan message)
+
 	//Provide the port of the server as a flag so it isn't hard-coded.
 	addr := flag.String("addr", ":9000", "Server's network address")
 	flag.Parse()
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("/", handleConn) // We only need one uri, make it root.
+	mux.HandleFunc("/", chatServer.handleConn) // We only need one uri, make it root.
 
-	go handleMsg() // Handle incoming messages concurrently.
+	go handleMsg(chatServer.activeClients, chatServer.chatRoom) // Handle incoming messages concurrently.
 
-	log.Printf("Starting server on %s", *addr)
+	log.Printf("Starting se	for {rver on %s", *addr)
 	err := http.ListenAndServe(*addr, mux)
 	if err != nil {
 		log.Fatal("Error starting server, exiting.", err)
@@ -55,34 +95,14 @@ func main() {
 // handleConn handles incomming http connections by adding the connection to a
 // global map of current connections and upgrading connection to a websocket.
 // Connections are identified individually by a generated UUID.
-func handleConn(w http.ResponseWriter, r *http.Request) {
+func handleConn(w http.ResponseWriter, r *http.Request, u Upgrader, chatRoom chan message, activeClients string) {
 	// Upgrade incomming http connections to websocket connections
-	sock, err := upgrader.Upgrade(w, r, nil)
-	if err != nil {
-		log.Printf("Error upgrading connection to websocket: %v", err)
-	}
-
-	defer sock.Close()
-	// Generate a UUID for the client and add it to activeClients
-	activeClients[sock] = uuid.New()
-
-	for {
-		var msg message
-		err := sock.ReadJSON(&msg)
-		if err != nil {
-			log.Printf("Closing connection with ID: %v", activeClients[sock])
-			delete(activeClients, sock)
-			break
-		}
-		msg.ID = activeClients[sock]
-		chatRoom <- msg
-	}
 }
 
 // handleMsg listens to the chatRoom channel, when a message is read it is sent
 // to each client currently in the activeClients map. If a message fails to send
 // to an activeClient, the client is removed from the activeClient map.
-func handleMsg() {
+func handleMsg(activeClients map[ConnReadWriter]uuid.UUID, chatRoom chan message) {
 	for {
 		msg := <-chatRoom // Get messages that are sent to the chatRoom channel
 
