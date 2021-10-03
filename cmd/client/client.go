@@ -91,7 +91,7 @@ func handleIncoming(sock ConnReader) {
 // handleOutgoing scans Stdin and sends each scanned line to the server as a
 // message struct marshalled into JSON.
 //
-// With terminals that do not support escape sequences, the user inputed text
+// With terminals that do not support escape sequences, the user inputted text
 // will not be properly cleared from the screen, and will display twice.
 // this should only affect users of Windows.
 func handleOutgoing(sock ConnWriter, s Scanner, name string) {
