@@ -1,7 +1,7 @@
 // Go_chat Server
 // A simple websocket server written in Go.
 //
-// Creates a persistent webserver using the http library. Listens for incomming
+// Creates a persistent webserver using the http library. Listens for incoming
 // http connections on the port provided with the -addr flag, or 9000 by default.
 //
 // Author:		Stephen Onnen
@@ -52,7 +52,7 @@ func main() {
 	}
 }
 
-// handleConn handles incomming http connections by adding the connection to a
+// handleConn handles incoming http connections by adding the connection to a
 // global map of current connections and upgrading connection to a websocket.
 // Connections are identified individually by a generated UUID.
 func handleConn(w http.ResponseWriter, r *http.Request) {
